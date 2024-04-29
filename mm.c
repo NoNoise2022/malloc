@@ -121,30 +121,26 @@ static void *extend_heap(size_t words)
 
 static void *find_fit(size_t asize)
 {  
-    /* next-fit search */
-    char *bp;
-
-    // Search from next_fit to the end of the heap
-    for (; GET_SIZE(HDRP(bp)) > 0; bp = NEXT_BLKP(bp))
-    {
-        if (!GET_ALLOC(HDRP(bp)) && (asize <= GET_SIZE(HDRP(bp))))
-        {
-            // If a fit is found, return the address of the block pointer
-            return bp;
-        }
+    void *bp;
+    if (recently_allocated == NULL) {
+        recently_allocated = heap_listp;
     }
 
-    // If no fit is found by the end of the heap, start the search from the
-    // beginning of the heap to the original next_fit location
-    for (bp = heap_listp; bp < next_fit; bp = NEXT_BLKP(bp))
-    {
-        if (!GET_ALLOC(HDRP(bp)) && (asize <= GET_SIZE(HDRP(bp))))
-        {
+    for (bp = recently_allocated; GET_SIZE(HDRP(bp)) > 0; bp = NEXT_BLKP(bp)){
+         if (!GET_ALLOC(HDRP(bp)) && (asize <= GET_SIZE(HDRP(bp)))) {
+            recently_allocated = bp;
             return bp;
-        }
+            }
+    }
+	// 저장된 위치부터 보고 나서 할당할 곳을 못찾았다면, 처음부터 재탐색 한번 더!
+    for (bp = heap_listp; GET_SIZE(HDRP(bp)) > 0; bp = NEXT_BLKP(bp)){
+         if (!GET_ALLOC(HDRP(bp)) && (asize <= GET_SIZE(HDRP(bp)))) {
+            recently_allocated = bp;
+            return bp;
+            }
     }
 
-    return NULL; /* No fit */
+    return NULL;
 }
 
 static void place(void *bp, size_t asize)
