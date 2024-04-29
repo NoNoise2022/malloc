@@ -62,6 +62,8 @@ team_t team = {
 #define PREV_BLKP(bp)   ((char *)(bp) - GET_SIZE(((char *)(bp)-DSIZE)))
 static char *heap_listp;
 static char *recently_allocated;
+static void remove_from_free_list(void *bp);
+
 
 static void *coalesced(void *bp)
 {
