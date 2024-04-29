@@ -61,6 +61,7 @@ team_t team = {
 #define NEXT_BLKP(bp)   ((char *)(bp) + GET_SIZE(((char *)(bp)-WSIZE)))
 #define PREV_BLKP(bp)   ((char *)(bp) - GET_SIZE(((char *)(bp)-DSIZE)))
 static char *heap_listp;
+static char *recently_allocated;
 
 static void *coalesced(void *bp)
 {
@@ -121,10 +122,17 @@ static void *extend_heap(size_t words)
 
 static void *find_fit(size_t asize){
     void *bp;
-
-    for (bp = heap_listp; GET_SIZE(HDRP(bp)) > 0; bp = NEXT_BLKP(bp)) {
-        if (!GET_ALLOC(HDRP(bp)) && (asize <= GET_SIZE(HDRP(bp)))) {return bp;}
+    if (recently_allocated == NULL) {
+        recently_allocated = heap_listp;
     }
+    
+    for (bp = recently_allocated; GET_SIZE(HDRP(bp)) > 0; bp = NEXT_BLKP(bp)){
+         if (!GET_ALLOC(HDRP(bp)) && (asize <= GET_SIZE(HDRP(bp)))) {
+            recently_allocated = bp;
+            return bp;
+            }
+    }
+    
     return NULL;
 }
 
