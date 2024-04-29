@@ -118,6 +118,7 @@ static void *extend_heap(size_t words)
 
 //
 
+static char *next_fit = NULL;
 
 static void *find_fit(size_t asize)
 {   /* First-fit search */
