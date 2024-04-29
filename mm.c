@@ -256,6 +256,7 @@ void mm_free(void *bp){
  * mm_realloc - Implemented simply in terms of mm_malloc and mm_free
  */
 
+/*
 void *mm_realloc(void *ptr, size_t size)
 {
     void *oldptr = ptr;
@@ -273,7 +274,48 @@ void *mm_realloc(void *ptr, size_t size)
     memcpy(newptr, oldptr, copySize);
     mm_free(oldptr);
     return newptr;
-}
+}*/
+
+
+void *mm_realloc(void *bp, size_t size){
+  if((int)size < 0) 
+    return NULL; 
+  else if((int)size == 0){ 
+    mm_free(bp); 
+    return NULL; 
+  } 
+  else if(size > 0){ 
+      size_t oldsize = GET_SIZE(HDRP(bp)); 
+      size_t newsize = size + 2 * WSIZE; // 2 words for header and footer
+      /*if newsize is less than oldsize then we just return bp */
+      if(newsize <= oldsize){ 
+          return bp; 
+      }
+      /*if newsize is greater than oldsize */ 
+      else { 
+          size_t next_alloc = GET_ALLOC(HDRP(NEXT_BLKP(bp))); 
+          size_t csize;
+          /* next block is free and the size of the two blocks is greater than or equal the new size  */ 
+          /* then we only need to combine both the blocks  */ 
+          if(!next_alloc && ((csize = oldsize + GET_SIZE(  HDRP(NEXT_BLKP(bp))  ))) >= newsize){ 
+            remove_from_free_list(NEXT_BLKP(bp)); 
+            PUT(HDRP(bp), PACK(csize, 1)); 
+            PUT(FTRP(bp), PACK(csize, 1)); 
+            return bp; 
+          }
+          else {  
+            void *new_ptr = mm_malloc(newsize);  
+            place(new_ptr, newsize);
+            memcpy(new_ptr, bp, newsize); 
+            mm_free(bp); 
+            return new_ptr; 
+          } 
+      }
+  }else 
+    return NULL;
+} 
+
+
 
 /*
 void *mm_realloc(void *ptr, size_t size)
