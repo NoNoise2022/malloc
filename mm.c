@@ -300,7 +300,7 @@ void *mm_realloc(void *bp, size_t size){
           /* next block is free and the size of the two blocks is greater than or equal the new size  */ 
           /* then we only need to combine both the blocks  */ 
           if(!next_alloc && ((csize = oldsize + GET_SIZE(  HDRP(NEXT_BLKP(bp))  ))) >= newsize){ 
-            remove_from_free_list(NEXT_BLKP(bp)); 
+            // remove_from_free_list(NEXT_BLKP(bp)); 
             PUT(HDRP(bp), PACK(csize, 1)); 
             PUT(FTRP(bp), PACK(csize, 1)); 
             return bp; 
@@ -317,7 +317,13 @@ void *mm_realloc(void *bp, size_t size){
     return NULL;
 } 
 
-
+// static void remove_from_free_list(void *bp){
+//   if (GET_PREV_PTR(bp))
+//     SET_NEXT_PTR(GET_PREV_PTR(bp), GET_NEXT_PTR(bp));
+//   else
+//     free_list_start = GET_NEXT_PTR(bp);
+//   SET_PREV_PTR(GET_NEXT_PTR(bp), GET_PREV_PTR(bp));
+// }
 
 /*
 void *mm_realloc(void *ptr, size_t size)
