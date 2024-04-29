@@ -536,6 +536,7 @@ static trace_t *read_trace(char *tracedir, char *filename)
 	    break;
 	case 'f':
 	    fscanf(tracefile, "%ud", &index);
+
 	    trace->ops[op_index].type = FREE;
 	    trace->ops[op_index].index = index;
 	    break;
