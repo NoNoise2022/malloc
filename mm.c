@@ -135,7 +135,7 @@ static void *find_fit(size_t asize)
     return NULL;    //No fit
     */
    /* next-fit search */
-char *bp = next_fit;
+    char *bp = next_fit;
     // Search from next_fit to the end of the heap
     for (next_fit = bp; GET_SIZE(HDRP(next_fit)) > 0; next_fit = NEXT_BLKP(next_fit))
     {
