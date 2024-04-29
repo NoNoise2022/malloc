@@ -118,46 +118,35 @@ static void *extend_heap(size_t words)
 
 //
 
-static char *next_fit = NULL;
 
 static void *find_fit(size_t asize)
-{   /* First-fit search */
+{  
+    /* next-fit search */
+    char *bp = next_fit;
 
-    /*
-    void *bp;
-
-    for (bp = heap_listp; GET_SIZE(HDRP(bp)) > 0; bp = NEXT_BLKP(bp))
+    // Search from next_fit to the end of the heap
+    for (; GET_SIZE(HDRP(bp)) > 0; bp = NEXT_BLKP(bp))
     {
-        if (!GET_ALLOC(HDRP(bp)) && (asize <= GET_SIZE(HDRP(bp)))) 
+        if (!GET_ALLOC(HDRP(bp)) && (asize <= GET_SIZE(HDRP(bp))))
+        {
+            // If a fit is found, return the address of the block pointer
+            return bp;
+        }
+    }
+
+    // If no fit is found by the end of the heap, start the search from the
+    // beginning of the heap to the original next_fit location
+    for (bp = heap_listp; bp < next_fit; bp = NEXT_BLKP(bp))
+    {
+        if (!GET_ALLOC(HDRP(bp)) && (asize <= GET_SIZE(HDRP(bp))))
         {
             return bp;
         }
     }
-    return NULL;    //No fit
-    */
-   /* next-fit search */
-    char *bp = next_fit;
-    // Search from next_fit to the end of the heap
-    for (next_fit = bp; GET_SIZE(HDRP(next_fit)) > 0; next_fit = NEXT_BLKP(next_fit))
-    {
-        if (!GET_ALLOC(HDRP(next_fit)) && (asize <= GET_SIZE(HDRP(next_fit))))
-        {
-            // If a fit is found, return the address the of block pointer
-            return next_fit;
-        }
-    }
-    // If no fit is found by the end of the heap, start the search from the
-    // beginning of the heap to the original next_fit location
-    for (next_fit = heap_listp; next_fit < bp; next_fit = NEXT_BLKP(next_fit))
-    {
-        if (!GET_ALLOC(HDRP(next_fit)) && (asize <= GET_SIZE(HDRP(next_fit))))
-        {
-            return next_fit;
-        }
-    }
-    return NULL; /* No fit */
 
+    return NULL; /* No fit */
 }
+
 static void place(void *bp, size_t asize)
 {
     size_t csize = GET_SIZE(HDRP(bp));
