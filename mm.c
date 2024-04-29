@@ -122,7 +122,7 @@ static void *extend_heap(size_t words)
 static void *find_fit(size_t asize)
 {  
     /* next-fit search */
-    char *bp = next_fit;
+    char *bp;
 
     // Search from next_fit to the end of the heap
     for (; GET_SIZE(HDRP(bp)) > 0; bp = NEXT_BLKP(bp))
