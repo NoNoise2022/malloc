@@ -96,7 +96,7 @@ static void *coalesced(void *bp)
         PUT(FTRP(NEXT_BLKP(bp)), PACK(size, 0));
         bp = PREV_BLKP(bp);
     }
-
+    recently_allocated = bp;
     return bp;
 
 }
@@ -125,14 +125,21 @@ static void *find_fit(size_t asize){
     if (recently_allocated == NULL) {
         recently_allocated = heap_listp;
     }
-    
+
     for (bp = recently_allocated; GET_SIZE(HDRP(bp)) > 0; bp = NEXT_BLKP(bp)){
          if (!GET_ALLOC(HDRP(bp)) && (asize <= GET_SIZE(HDRP(bp)))) {
             recently_allocated = bp;
             return bp;
             }
     }
-    
+	// 저장된 위치부터 보고 나서 할당할 곳을 못찾았다면, 처음부터 재탐색 한번 더!
+    for (bp = heap_listp; GET_SIZE(HDRP(bp)) > 0; bp = NEXT_BLKP(bp)){
+         if (!GET_ALLOC(HDRP(bp)) && (asize <= GET_SIZE(HDRP(bp)))) {
+            recently_allocated = bp;
+            return bp;
+            }
+    }
+
     return NULL;
 }
 
