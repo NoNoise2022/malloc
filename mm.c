@@ -24,9 +24,9 @@
  ********************************************************/
 team_t team = {
     /* Team name */
-    "ateam",
+    "5team",
     /* First member's full name */
-    "Harry Bovik",
+    "SDW",
     /* First member's email address */
     "bovik@cs.cmu.edu",
     /* Second member's full name (leave blank if none) */
@@ -120,6 +120,38 @@ static void *extend_heap(size_t words)
 }
 
 //
+
+/*
+static void *find_fit(size_t asize){ // first fit 검색을 수행
+    void *bp;
+    for (bp= heap_listp; GET_SIZE(HDRP(bp)) > 0; bp = NEXT_BLKP(bp)){ 
+        // init에서 쓴 heap_listp를 쓴다. 처음 출발하고 그 다음이 regular block 첫번째 헤더 뒤 위치네.
+        // for문이 계속 돌면 epilogue header까기 간다. epilogue header는 0이니까 종료가 된다.
+        if (!GET_ALLOC(HDRP(bp)) && (asize<=GET_SIZE(HDRP(bp)))){ // 이 블록이 가용하고(not 할당) 내가 갖고있는 asize를 담을 수 있으면
+            return bp; // 내가 넣을 수 있는 블록만 찾는거니까, 그게 나오면 바로 리턴.
+        }
+    }
+    return NULL;  // 종료 되면 null 리턴. no fit 상태.
+}
+static void place(void *bp, size_t asize){ // 들어갈 위치를 포인터로 받는다.(find fit에서 찾는 bp) 크기는 asize로 받음.
+    // 요청한 블록을 가용 블록의 시작 부분에 배치, 나머지 부분의 크기가 최소 블록크기와 같거나 큰 경우에만 분할하는 함수.
+    size_t csize = GET_SIZE(HDRP(bp)); // 현재 있는 블록의 사이즈.
+    if ( (csize-asize) >= (2*DSIZE)){ // 현재 블록 사이즈안에서 asize를 넣어도 2*DSIZE(헤더와 푸터를 감안한 최소 사이즈)만큼 남냐? 남으면 다른 data를 넣을 수 있으니까.
+        PUT(HDRP(bp), PACK(asize,1)); // 헤더위치에 asize만큼 넣고 1(alloc)로 상태변환. 원래 헤더 사이즈에서 지금 넣으려고 하는 사이즈(asize)로 갱신.(자르는 효과)
+        PUT(FTRP(bp), PACK(asize,1)); //푸터 위치도 변경.
+        bp = NEXT_BLKP(bp); // regular block만큼 하나 이동해서 bp 위치 갱신.
+        PUT(HDRP(bp), PACK(csize-asize,0)); // 나머지 블록은(csize-asize) 다 가용하다(0)하다라는걸 다음 헤더에 표시.
+        PUT(FTRP(bp), PACK(csize-asize,0)); // 푸터에도 표시.
+    }
+    else{
+        PUT(HDRP(bp), PACK(csize,1)); // 위의 조건이 아니면 asize만 csize에 들어갈 수 있으니까 내가 다 먹는다.
+        PUT(FTRP(bp), PACK(csize,1));
+    }
+}
+*/
+
+
+
 
 
 static void *find_fit(size_t asize){
@@ -281,13 +313,6 @@ void *mm_realloc(void *ptr, size_t size)
 
 
 
-// static void remove_from_free_list(void *bp){
-//   if (GET_PREV_PTR(bp))
-//     SET_NEXT_PTR(GET_PREV_PTR(bp), GET_NEXT_PTR(bp));
-//   else
-//     free_list_start = GET_NEXT_PTR(bp);
-//   SET_PREV_PTR(GET_NEXT_PTR(bp), GET_PREV_PTR(bp));
-// }
 
 /*
 void *mm_realloc(void *ptr, size_t size)
